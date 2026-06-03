@@ -7,7 +7,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 
 type JsonSchema = Record<string, unknown>;
 
@@ -47,6 +47,8 @@ interface ToolDef {
   queryParams: { name: string; required: boolean }[];
   hasBody: boolean;
   bodyContentType: string | null;
+  isMultipart: boolean;
+  binaryFields: Set<string>;
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -155,27 +157,38 @@ function buildTools(spec: OpenAPISpec): ToolDef[] {
 
       let hasBody = false;
       let bodyContentType: string | null = null;
+      let isMultipart = false;
+      const binaryFields = new Set<string>();
       if (op.requestBody?.content) {
-        const json = op.requestBody.content["application/json"];
-        const firstContent = json
-          ? { ct: "application/json", schema: json.schema }
-          : Object.entries(op.requestBody.content).map(([ct, v]) => ({ ct, schema: v.schema }))[0];
-        if (firstContent?.schema) {
+        // Prefer application/json, otherwise multipart, otherwise whatever comes first.
+        const entries = Object.entries(op.requestBody.content);
+        const pick =
+          entries.find(([ct]) => ct === "application/json") ||
+          entries.find(([ct]) => ct === "multipart/form-data") ||
+          entries[0];
+        if (pick && pick[1]?.schema) {
           hasBody = true;
-          bodyContentType = firstContent.ct;
-          const resolved = dereference(spec, firstContent.schema);
+          bodyContentType = pick[0];
+          isMultipart = pick[0] === "multipart/form-data";
+          const resolved = dereference(spec, pick[1].schema);
           if (resolved.type === "object" && resolved.properties) {
-            // Flatten body fields into top-level tool args (no path/query name collisions in this API).
             const bodyProps = resolved.properties as Record<string, JsonSchema>;
             const bodyRequired = (resolved.required as string[] | undefined) || [];
             for (const [bk, bv] of Object.entries(bodyProps)) {
-              if (properties[bk]) {
-                properties[`body_${bk}`] = { ...bv, description: `(body) ${(bv as JsonSchema).description || ""}` };
-                if (op.requestBody.required && bodyRequired.includes(bk)) required.push(`body_${bk}`);
-              } else {
-                properties[bk] = { ...bv, description: `(body) ${(bv as JsonSchema).description || ""}` };
-                if (op.requestBody.required && bodyRequired.includes(bk)) required.push(bk);
-              }
+              const fieldSchema = bv as JsonSchema;
+              const isBinary = fieldSchema.format === "binary";
+              if (isBinary) binaryFields.add(bk);
+              const annotated: JsonSchema = isBinary
+                ? {
+                    type: "string",
+                    description: `(body, file) ${fieldSchema.description || ""} — pass an absolute local file path; the server will upload its contents.`,
+                  }
+                : { ...fieldSchema, description: `(body) ${fieldSchema.description || ""}` };
+              const key = properties[bk] ? `body_${bk}` : bk;
+              if (key === `body_${bk}`) binaryFields.delete(bk); // re-add under prefixed key
+              if (key === `body_${bk}` && isBinary) binaryFields.add(`body_${bk}`);
+              properties[key] = annotated;
+              if (op.requestBody.required && bodyRequired.includes(bk)) required.push(key);
             }
           } else {
             properties["body"] = { ...resolved, description: "Request body" };
@@ -208,6 +221,8 @@ function buildTools(spec: OpenAPISpec): ToolDef[] {
         queryParams,
         hasBody,
         bodyContentType,
+        isMultipart,
+        binaryFields,
       });
     }
   }
@@ -250,21 +265,52 @@ async function callOperation(tool: ToolDef, args: Record<string, unknown>): Prom
     Accept: "application/json",
   };
 
-  let body: string | undefined;
+  let body: BodyInit | undefined;
   if (tool.hasBody) {
     const usedKeys = new Set([...tool.pathParams, ...tool.queryParams.map((q) => q.name)]);
-    const bodyObj: Record<string, unknown> = {};
-    if ("body" in args && typeof args.body === "object" && args.body !== null) {
-      Object.assign(bodyObj, args.body as Record<string, unknown>);
-    }
-    for (const [k, v] of Object.entries(args)) {
-      if (usedKeys.has(k) || k === "body") continue;
-      const realKey = k.startsWith("body_") ? k.slice(5) : k;
-      bodyObj[realKey] = v;
-    }
-    if (Object.keys(bodyObj).length > 0) {
-      body = JSON.stringify(bodyObj);
-      headers["Content-Type"] = tool.bodyContentType || "application/json";
+
+    if (tool.isMultipart) {
+      const form = new FormData();
+      const append = (key: string, value: unknown) => {
+        if (value === undefined || value === null) return;
+        const realKey = key.startsWith("body_") ? key.slice(5) : key;
+        if (tool.binaryFields.has(key)) {
+          if (typeof value !== "string") {
+            throw new Error(`Binary field '${realKey}' must be a string file path; got ${typeof value}.`);
+          }
+          const data = readFileSync(value);
+          form.append(realKey, new Blob([new Uint8Array(data)]), basename(value));
+        } else if (Array.isArray(value)) {
+          for (const v of value) form.append(realKey, typeof v === "object" ? JSON.stringify(v) : String(v));
+        } else if (typeof value === "object") {
+          form.append(realKey, JSON.stringify(value));
+        } else {
+          form.append(realKey, String(value));
+        }
+      };
+      if ("body" in args && typeof args.body === "object" && args.body !== null) {
+        for (const [k, v] of Object.entries(args.body as Record<string, unknown>)) append(k, v);
+      }
+      for (const [k, v] of Object.entries(args)) {
+        if (usedKeys.has(k) || k === "body") continue;
+        append(k, v);
+      }
+      body = form;
+      // Do NOT set Content-Type — fetch/undici will add it with the proper boundary.
+    } else {
+      const bodyObj: Record<string, unknown> = {};
+      if ("body" in args && typeof args.body === "object" && args.body !== null) {
+        Object.assign(bodyObj, args.body as Record<string, unknown>);
+      }
+      for (const [k, v] of Object.entries(args)) {
+        if (usedKeys.has(k) || k === "body") continue;
+        const realKey = k.startsWith("body_") ? k.slice(5) : k;
+        bodyObj[realKey] = v;
+      }
+      if (Object.keys(bodyObj).length > 0) {
+        body = JSON.stringify(bodyObj);
+        headers["Content-Type"] = tool.bodyContentType || "application/json";
+      }
     }
   }
 
