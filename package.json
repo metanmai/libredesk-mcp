@@ -1,0 +1,38 @@
+{
+  "name": "libredesk-mcp",
+  "version": "0.1.0",
+  "description": "Model Context Protocol server for Libredesk - the open-source customer support desk.",
+  "type": "module",
+  "bin": {
+    "libredesk-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc && chmod +x dist/index.js && cp src/openapi.json dist/openapi.json",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "libredesk",
+    "helpdesk",
+    "customer-support"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

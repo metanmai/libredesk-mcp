@@ -1,0 +1,4802 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Libredesk API",
+    "description": "REST API documentation for Libredesk helpdesk system.\n\n## Authentication\n\nThe Libredesk API supports two authentication methods:\n\n### 1. Basic Authentication\nUse your API key and secret with Basic authentication:\n```\nAuthorization: Basic <base64_encoded_api_key:api_secret>\n```\n\n### 2. Token Authentication  \nUse your API key and secret with token authentication:\n```\nAuthorization: token api_key:api_secret\n```\n\nTo obtain API credentials, generate them from your agent profile in the Libredesk dashboard.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/api/v1/agents": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Get Agents",
+        "operationId": "handleGetAgents",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agents retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Create Agent",
+        "operationId": "handleCreateAgent",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Agent creation details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agents/me": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Get Current Agent",
+        "operationId": "handleGetCurrentAgent",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current agent details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/agents/me/availability": {
+      "put": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Update Current Agent Availability",
+        "operationId": "handleUpdateAgentAvailability",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent availability status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Availability status update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvailabilityRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agents/{id}": {
+      "delete": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Delete Agent",
+        "operationId": "handleDeleteAgent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Get Agent",
+        "operationId": "handleGetAgent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Update Agent",
+        "operationId": "handleUpdateAgent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Agent update details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agents/{id}/api-key": {
+      "delete": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Revoke A P I Key",
+        "operationId": "handleRevokeAPIKey",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API key revoked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Generate A P I Key",
+        "operationId": "handleGenerateAPIKey",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API key generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIKeyResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/ai/completion": {
+      "post": {
+        "tags": [
+          "AI completions"
+        ],
+        "summary": "A I Completion",
+        "operationId": "handleAICompletion",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AI completion generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AICompletionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "AI completion request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AICompletionRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ai/prompts": {
+      "get": {
+        "tags": [
+          "AI completions"
+        ],
+        "summary": "Get A I Prompts",
+        "operationId": "handleGetAIPrompts",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AI prompts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIPromptListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/ai/provider": {
+      "put": {
+        "tags": [
+          "AI completions"
+        ],
+        "summary": "Update A I Provider",
+        "operationId": "handleUpdateAIProvider",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AI provider updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "AI provider configuration",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AIProviderRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contacts": {
+      "get": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Get Contacts",
+        "operationId": "handleGetContacts",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number (defaults to 1)"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            },
+            "description": "Number of items per page (defaults to 30, max 100)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of contacts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/contacts/search": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search Contacts",
+        "operationId": "handleSearchContacts",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3
+            },
+            "description": "Search query (minimum 3 characters)"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contacts searched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactSearchResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/contacts/{id}": {
+      "get": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Get Contact",
+        "operationId": "handleGetContact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Update Contact",
+        "operationId": "handleUpdateContact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Contact update details",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "description": "Contact's first name"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "description": "Contact's last name"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Contact's email address"
+                  },
+                  "phone_number": {
+                    "type": "string",
+                    "description": "Contact's phone number"
+                  },
+                  "phone_number_country_code": {
+                    "type": "string",
+                    "description": "ISO country code"
+                  },
+                  "files": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "New avatar image file to upload"
+                  },
+                  "avatar_url": {
+                    "type": "string",
+                    "description": "URL of the contact's avatar image. Pass a valid image URL to update, pass null to remove the avatar, or pass the existing value to keep it unchanged.",
+                    "nullable": true
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Whether the contact is enabled"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contacts/{id}/block": {
+      "put": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Block or Unblock Contact",
+        "operationId": "handleBlockContact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact block status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Update the contact's block status.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Set to `false` to block, `true` to unblock",
+                    "example": false
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contacts/{id}/notes": {
+      "get": {
+        "tags": [
+          "Contact notes"
+        ],
+        "summary": "Get Contact Notes",
+        "operationId": "handleGetContactNotes",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact notes retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactNoteListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Contact notes"
+        ],
+        "summary": "Create Contact Note",
+        "operationId": "handleCreateContactNote",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact note created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactNoteResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Note details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactNoteRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contacts/{id}/notes/{note_id}": {
+      "delete": {
+        "tags": [
+          "Contact notes"
+        ],
+        "summary": "Delete Contact Note",
+        "operationId": "handleDeleteContactNote",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The unique identifier for the contact."
+          },
+          {
+            "name": "note_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The unique identifier for the note associated with the contact."
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact note deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations": {
+      "post": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Create Conversation",
+        "operationId": "handleCreateConversation",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Conversation creation details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConversationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/all": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Get all Conversations",
+        "operationId": "handleGetAllConversations",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (defaults to 1)"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            },
+            "description": "Number of items per page (defaults to 30, max 100)"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All conversations retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/assigned": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Get Assigned Conversations",
+        "operationId": "handleGetAssignedConversations",
+        "description": "Get all assigned conversations to current user",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (defaults to 1)"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            },
+            "description": "Number of items per page (defaults to 30, max 100)"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assigned conversations retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/search": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search Conversations",
+        "operationId": "handleSearchConversations",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3
+            },
+            "description": "Search query (minimum 3 characters)"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversations searched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationSearchResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/unassigned": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Get Unassigned Conversations",
+        "operationId": "handleGetUnassignedConversations",
+        "description": "Get all conversations not assigned to any user and team",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (defaults to 1)"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            },
+            "description": "Number of items per page (defaults to 30, max 100)"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Unassigned conversations retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{cuuid}/messages": {
+      "post": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Send Message",
+        "operationId": "handleSendMessage",
+        "parameters": [
+          {
+            "name": "cuuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Message details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{cuuid}/messages/{uuid}": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Get Message",
+        "operationId": "handleGetMessage",
+        "parameters": [
+          {
+            "name": "cuuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Conversation UUID"
+          },
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Message UUID"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{cuuid}/messages/{uuid}/retry": {
+      "put": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Retry Message",
+        "description": "Retries sending a failed message in the specified conversation.",
+        "operationId": "handleRetryMessage",
+        "parameters": [
+          {
+            "name": "cuuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message retried successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Get Conversation",
+        "operationId": "handleGetConversation",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Conversation UUID"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}/assignee/team": {
+      "put": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Update Team Assignee",
+        "operationId": "handleUpdateTeamAssignee",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team assignee updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Team assignment details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamAssignRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}/assignee/team/remove": {
+      "put": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Remove Team Assignee",
+        "operationId": "handleRemoveTeamAssignee",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team assignee removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}/assignee/user": {
+      "put": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Update User Assignee",
+        "operationId": "handleUpdateUserAssignee",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User assignee updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "User assignment details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAssignRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}/assignee/user/remove": {
+      "put": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Remove User Assignee",
+        "operationId": "handleRemoveUserAssignee",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User assignee removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}/last-seen": {
+      "put": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Update Conversation Assignee Last Seen",
+        "operationId": "handleUpdateConversationAssigneeLastSeen",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation assignee last seen updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}/messages": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Get Messages",
+        "operationId": "handleGetMessages",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Conversation UUID"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (defaults to 1)"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            },
+            "description": "Number of items per page (defaults to 30, max 100)"
+          },
+          {
+            "name": "private",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Filter by private messages (internal notes). If not provided, returns all messages."
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "incoming",
+                  "outgoing",
+                  "activity"
+                ]
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "Filter by message type. Can be specified multiple times (e.g., ?type=incoming&type=outgoing). If not provided, returns all messages."
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messages retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}/participants": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Get Conversation Participants",
+        "operationId": "handleGetConversationParticipants",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "UUID of conversation"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation participants retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationParticipantsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}/priority": {
+      "put": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Update Conversation Priority",
+        "operationId": "handleUpdateConversationPriority",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation priority updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Priority update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PriorityUpdateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}/status": {
+      "put": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Update Conversation Status",
+        "operationId": "handleUpdateConversationStatus",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Status update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusUpdateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{uuid}/tags": {
+      "post": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Update conversation tags",
+        "operationId": "handleUpdateConversationtags",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation tags updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Tags to add",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagsUpdateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media": {
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Media Upload",
+        "operationId": "handleMediaUpload",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful media upload response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Media upload",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File to upload"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/messages/search": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search Messages",
+        "operationId": "handleSearchMessages",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3
+            },
+            "description": "Search query (minimum 3 characters)"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messages searched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSearchResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/priorities": {
+      "get": {
+        "tags": [
+          "Status and priority"
+        ],
+        "summary": "Get Conversation Priorities",
+        "operationId": "handleGetPriorities",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Priorities retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriorityListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/statuses": {
+      "get": {
+        "tags": [
+          "Status and priority"
+        ],
+        "summary": "Get Conversation Statuses",
+        "operationId": "handleGetStatuses",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statuses retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Status and priority"
+        ],
+        "summary": "Create Conversation Status",
+        "operationId": "handleCreateStatus",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Status configuration",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/statuses/{id}": {
+      "delete": {
+        "tags": [
+          "Status and priority"
+        ],
+        "summary": "Delete Conversation Status",
+        "operationId": "handleDeleteStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Status and priority"
+        ],
+        "summary": "Update Conversation Status",
+        "operationId": "handleUpdateStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Status update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/teams": {
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Get Teams",
+        "operationId": "handleGetTeams",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of teams",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Create Team",
+        "operationId": "handleCreateTeam",
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created team",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Team configuration",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/teams/{id}": {
+      "delete": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Delete Team",
+        "operationId": "handleDeleteTeam",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Get Team",
+        "operationId": "handleGetTeam",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Update Team",
+        "operationId": "handleUpdateTeam",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "description": "Team update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/views/{id}/conversations": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Get View Conversations",
+        "operationId": "handleGetViewConversations",
+        "description": "Get conversations for a specific view",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique ID of the view"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (defaults to 1)"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            },
+            "description": "Number of items per page (defaults to 30, max 100)"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of conversations for view",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/teams/{id}/conversations/unassigned": {
+      "get": {
+        "tags": [
+          "Conversations"
+        ],
+        "summary": "Get Team Unassigned Conversations",
+        "operationId": "handleGetTeamUnassignedConversations",
+        "description": "Get conversation assigned to team but not assigned to any agent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The unique identifier for the team"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (defaults to 1)"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            },
+            "description": "Number of items per page (defaults to 30, max 100)"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          },
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of unassigned conversations for team",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "operationId": "handleHealthCheck",
+        "responses": {
+          "200": {
+            "description": "Health check passed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Basic authentication using base64 encoded API key and secret. Format: `Authorization: Basic <base64(api_key:api_secret)>`"
+      },
+      "tokenAuth": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "description": "Token authentication using API key and secret. Format: `Authorization: token api_key:api_secret`"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Additional error data"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Invalid email or password"
+          }
+        },
+        "description": "Error response format"
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "user@example.com",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password",
+            "example": "securepassword123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "example": {
+          "email": "user@example.com",
+          "password": "securepassword123"
+        },
+        "description": "Login request payload"
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "user@example.com",
+            "format": "email"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether the user account is enabled",
+            "example": true
+          },
+          "first_name": {
+            "type": "string",
+            "description": "User first name",
+            "example": "John"
+          },
+          "id": {
+            "type": "integer",
+            "description": "User ID",
+            "example": 1
+          },
+          "last_name": {
+            "type": "string",
+            "description": "User last name",
+            "example": "Doe"
+          }
+        },
+        "description": "User object returned on successful login"
+      },
+      "ContactList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 163
+          },
+          "type": {
+            "type": "string",
+            "example": "contact"
+          },
+          "first_name": {
+            "type": "string",
+            "example": "PayPal"
+          },
+          "last_name": {
+            "type": "string",
+            "example": ""
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "donotreply@paypal.com"
+          },
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "avatar_url": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-14T18:53:01.172243Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-14T18:53:01.172243Z"
+          }
+        }
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "type": {
+            "type": "string"
+          },
+          "availability_status": {
+            "type": "string"
+          },
+          "avatar_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone_number_country_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "custom_attributes": {
+            "type": "object",
+            "nullable": true
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "last_active_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "last_login_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "teams": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "api_key": {
+            "type": "string",
+            "nullable": true
+          },
+          "api_key_last_used_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "ContactSummary": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "avatar_url": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ContactResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Contact"
+          }
+        }
+      },
+      "ContactListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ContactList"
+                }
+              },
+              "total": {
+                "type": "integer",
+                "example": 39
+              },
+              "per_page": {
+                "type": "integer",
+                "example": 100
+              },
+              "total_pages": {
+                "type": "integer",
+                "example": 1
+              },
+              "page": {
+                "type": "integer",
+                "example": 1
+              }
+            }
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "uuid": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "incoming",
+              "outgoing"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "sent",
+              "received",
+              "failed"
+            ]
+          },
+          "conversation_id": {
+            "type": "integer"
+          },
+          "conversation_uuid": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "text_content": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string",
+            "enum": [
+              "html",
+              "text"
+            ]
+          },
+          "private": {
+            "type": "boolean"
+          },
+          "sender_id": {
+            "type": "integer"
+          },
+          "sender_type": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "contact"
+            ]
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "to": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "cc": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "bcc": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "from": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "subject": {
+                "type": "string"
+              }
+            }
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "Conversation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 51,
+            "description": "Unique conversation ID"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "example": "7d692b95-73dc-4f53-9343-6ed47a3db903",
+            "description": "Unique UUID for the conversation"
+          },
+          "contact_id": {
+            "type": "integer"
+          },
+          "inbox_id": {
+            "type": "integer"
+          },
+          "closed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "resolved_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "reference_number": {
+            "type": "string",
+            "example": "150",
+            "description": "Human-readable reference number for the conversation"
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "priority_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "example": "Open",
+            "description": "Current status of the conversation (Open, Closed, Resolved)"
+          },
+          "status_id": {
+            "type": "integer"
+          },
+          "first_reply_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "last_reply_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "assigned_user_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "assigned_team_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "assignee_last_seen_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "waiting_since": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "subject": {
+            "type": "string",
+            "example": "[GitHub] A third-party GitHub Application has been added",
+            "description": "Subject line of the conversation"
+          },
+          "inbox_mail": {
+            "type": "string",
+            "format": "email",
+            "example": "support@example.com",
+            "description": "Email address of the inbox"
+          },
+          "inbox_name": {
+            "type": "string",
+            "example": "Support Inbox",
+            "description": "Name of the inbox"
+          },
+          "inbox_channel": {
+            "type": "string",
+            "example": "email",
+            "description": "Channel type of the inbox (email, web, api)"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "meta": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "custom_attributes": {
+            "type": "object"
+          },
+          "last_message_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_message": {
+            "type": "string",
+            "example": "Hey! A third-party GitHub Application was recently authorized...",
+            "description": "Content of the last message in the conversation"
+          },
+          "last_message_sender": {
+            "type": "string",
+            "enum": [
+              "contact",
+              "agent"
+            ],
+            "example": "contact",
+            "description": "Who sent the last message"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/Contact"
+          },
+          "sla_policy_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "sla_policy_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "applied_sla_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "first_response_deadline_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "resolution_deadline_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "next_response_deadline_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "next_response_met_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "previous_conversations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "uuid": {
+                  "type": "string"
+                },
+                "contact": {
+                  "type": "object",
+                  "properties": {
+                    "first_name": {
+                      "type": "string"
+                    },
+                    "last_name": {
+                      "type": "string"
+                    },
+                    "avatar_url": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                },
+                "last_message": {
+                  "type": "string"
+                },
+                "last_message_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ConversationParticipantsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "example": 21
+            },
+            "first_name": {
+              "type": "string",
+              "example": "John"
+            },
+            "last_name": {
+              "type": "string",
+              "example": "Doe"
+            },
+            "avatar_url": {
+              "type": "string",
+              "nullable": true,
+              "example": null
+            }
+          }
+        }
+      },
+      "ConversationListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "uuid": {
+            "type": "string"
+          },
+          "waiting_since": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "assignee_last_seen_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/ContactSummary"
+          },
+          "inbox_channel": {
+            "type": "string"
+          },
+          "inbox_name": {
+            "type": "string"
+          },
+          "sla_policy_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "first_reply_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "last_reply_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "resolved_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "subject": {
+            "type": "string"
+          },
+          "last_message": {
+            "type": "string"
+          },
+          "last_message_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_message_sender": {
+            "type": "string"
+          },
+          "next_sla_deadline_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "priority_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "unread_message_count": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "nullable": true
+          },
+          "first_response_deadline_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "resolution_deadline_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "applied_sla_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "next_response_deadline_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "next_response_met_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "ConversationListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ConversationListItem"
+                }
+              },
+              "total": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total_pages": {
+                "type": "integer"
+              },
+              "page": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "ConversationResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Conversation"
+          }
+        }
+      },
+      "MessageListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              },
+              "total": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total_pages": {
+                "type": "integer"
+              },
+              "page": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Message"
+          }
+        }
+      },
+      "Media": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 123
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "uuid": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "store": {
+            "type": "string",
+            "example": "fs"
+          },
+          "filename": {
+            "type": "string",
+            "example": "example.jpg"
+          },
+          "content_type": {
+            "type": "string",
+            "example": "image/jpeg"
+          },
+          "content_id": {
+            "type": "string",
+            "example": ""
+          },
+          "model_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 456
+          },
+          "model_type": {
+            "type": "string",
+            "nullable": true,
+            "example": "messages"
+          },
+          "disposition": {
+            "type": "string",
+            "nullable": true,
+            "example": "attachment"
+          },
+          "size": {
+            "type": "integer",
+            "example": 102400
+          },
+          "meta": {
+            "type": "object",
+            "example": {
+              "width": 800,
+              "height": 600
+            }
+          },
+          "url": {
+            "type": "string",
+            "example": "/uploads/550e8400-e29b-41d4-a716-446655440000"
+          }
+        }
+      },
+      "TagsUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "urgent",
+              "vip"
+            ]
+          }
+        }
+      },
+      "MediaResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Media"
+          }
+        }
+      },
+      "EmailNotification": {
+        "type": "object",
+        "properties": {
+          "notification.email.username": {
+            "type": "string",
+            "example": "noreply@example.com"
+          },
+          "notification.email.host": {
+            "type": "string",
+            "example": "smtp.example.com"
+          },
+          "notification.email.port": {
+            "type": "integer",
+            "example": 587
+          },
+          "notification.email.password": {
+            "type": "string",
+            "example": "**********"
+          },
+          "notification.email.max_conns": {
+            "type": "integer",
+            "example": 10
+          },
+          "notification.email.idle_timeout": {
+            "type": "string",
+            "example": "15s"
+          },
+          "notification.email.wait_timeout": {
+            "type": "string",
+            "example": "5s"
+          },
+          "notification.email.auth_protocol": {
+            "type": "string",
+            "example": "PLAIN"
+          },
+          "notification.email.email_address": {
+            "type": "string",
+            "example": "noreply@example.com"
+          },
+          "notification.email.max_msg_retries": {
+            "type": "integer",
+            "example": 3
+          },
+          "notification.email.tls_type": {
+            "type": "string",
+            "example": "STARTTLS"
+          },
+          "notification.email.tls_skip_verify": {
+            "type": "boolean",
+            "example": false
+          },
+          "notification.email.hello_hostname": {
+            "type": "string",
+            "example": "example.com"
+          },
+          "notification.email.enabled": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "ConversationSearchResult": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "uuid": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "reference_number": {
+            "type": "string",
+            "example": "REF-001"
+          },
+          "subject": {
+            "type": "string",
+            "example": "Order inquiry"
+          }
+        }
+      },
+      "MessageSearchResult": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "text_content": {
+            "type": "string",
+            "example": "Hello, I need help with my order."
+          },
+          "conversation_created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "conversation_uuid": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "conversation_reference_number": {
+            "type": "string",
+            "example": "REF-001"
+          }
+        }
+      },
+      "ContactSearchResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactSearchResult"
+            }
+          }
+        }
+      },
+      "ConversationSearchResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationSearchResult"
+            }
+          }
+        }
+      },
+      "MessageSearchResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageSearchResult"
+            }
+          }
+        }
+      },
+      "ContactSearchResult": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com"
+          }
+        }
+      },
+      "StatusRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Open"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "Status": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "name": {
+            "type": "string",
+            "example": "Open"
+          }
+        }
+      },
+      "StatusResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Status"
+          }
+        }
+      },
+      "StatusListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Status"
+            }
+          }
+        }
+      },
+      "Priority": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "name": {
+            "type": "string",
+            "example": "High"
+          }
+        }
+      },
+      "PriorityResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Priority"
+          }
+        }
+      },
+      "PriorityListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Priority"
+            }
+          }
+        }
+      },
+      "Agent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "example": "agent"
+          },
+          "availability_status": {
+            "type": "string",
+            "example": "online"
+          },
+          "phone_number_country_code": {
+            "type": "string",
+            "nullable": true,
+            "example": "US"
+          },
+          "phone_number": {
+            "type": "string",
+            "nullable": true,
+            "example": "1234567890"
+          },
+          "avatar_url": {
+            "type": "string",
+            "nullable": true,
+            "example": "/avatars/agent1.jpg"
+          },
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "last_active_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "last_login_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "admin"
+            ]
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "conversations:read"
+            ]
+          },
+          "custom_attributes": {
+            "type": "object"
+          },
+          "teams": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamCompact"
+            }
+          },
+          "api_key": {
+            "type": "string",
+            "nullable": true
+          },
+          "api_key_last_used_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "AgentCompact": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 76
+                },
+                "type": {
+                  "type": "string",
+                  "example": "agent"
+                },
+                "first_name": {
+                  "type": "string",
+                  "example": "John"
+                },
+                "last_name": {
+                  "type": "string",
+                  "example": "Doe"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "example": "example@example.com"
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "avatar_url": {
+                  "type": "string",
+                  "nullable": true,
+                  "example": null
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2025-08-30T15:44:51.110888Z"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2025-09-14T18:23:36.149041Z"
+                }
+              }
+            }
+          }
+        }
+      },
+      "AgentResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Agent"
+          }
+        }
+      },
+      "AgentListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentCompact"
+            }
+          }
+        }
+      },
+      "TeamCompact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Support Team"
+          },
+          "emoji": {
+            "type": "string",
+            "nullable": true,
+            "example": "🛠️"
+          }
+        }
+      },
+      "TeamRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Support"
+          },
+          "emoji": {
+            "type": "string",
+            "example": "😗"
+          },
+          "conversation_assignment_type": {
+            "type": "string",
+            "example": "Manual"
+          },
+          "max_auto_assigned_conversations": {
+            "type": "integer",
+            "example": 2
+          },
+          "timezone": {
+            "type": "string",
+            "example": "America/Toronto"
+          },
+          "business_hours_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "sla_policy_id": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "Team": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "emoji": {
+            "type": "string",
+            "nullable": true,
+            "example": "🛠️"
+          },
+          "name": {
+            "type": "string",
+            "example": "Support Team"
+          },
+          "conversation_assignment_type": {
+            "type": "string",
+            "example": "round_robin"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "UTC"
+          },
+          "business_hours_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          },
+          "sla_policy_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          },
+          "max_auto_assigned_conversations": {
+            "type": "integer",
+            "example": 10
+          }
+        }
+      },
+      "TeamResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Team"
+          }
+        }
+      },
+      "TeamListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Team"
+            }
+          }
+        }
+      },
+      "ContactNote": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-28T10:00:00Z"
+          },
+          "contact_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "note": {
+            "type": "string",
+            "example": "Customer prefers email communication"
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "first_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "avatar_url": {
+            "type": "string",
+            "nullable": true,
+            "example": "/avatars/agent1.jpg"
+          }
+        }
+      },
+      "ContactNoteResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ContactNote"
+          }
+        }
+      },
+      "ContactNoteListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactNote"
+            }
+          }
+        }
+      },
+      "APIKeyResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "api_key": {
+                "type": "string",
+                "example": "ak_1234567890abcdef"
+              },
+              "api_secret": {
+                "type": "string",
+                "example": "as_abcdef1234567890"
+              }
+            }
+          }
+        }
+      },
+      "AICompletion": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "example": "Thank you for contacting us. I'll help you resolve this issue..."
+          },
+          "usage": {
+            "type": "object",
+            "properties": {
+              "tokens": {
+                "type": "integer",
+                "example": 150
+              }
+            }
+          }
+        }
+      },
+      "AICompletionResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "string",
+            "example": "Thank you for contacting us. I'll help you resolve this issue...",
+            "description": "The AI-generated completion response"
+          }
+        }
+      },
+      "AIPrompt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1,
+            "description": "Unique prompt ID"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-30T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-08-30T10:00:00Z"
+          },
+          "key": {
+            "type": "string",
+            "example": "reply_friendly",
+            "description": "Unique key identifier for the prompt"
+          },
+          "title": {
+            "type": "string",
+            "example": "Friendly Reply",
+            "description": "Display title of the prompt"
+          }
+        }
+      },
+      "AIPromptListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AIPrompt"
+            }
+          }
+        }
+      },
+      "AgentRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "first_name",
+          "roles"
+        ],
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "description": "Agent's first name"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "Agent's last name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Agent's email address"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Roles assigned to the agent"
+          },
+          "send_welcome_email": {
+            "type": "boolean",
+            "description": "Only used during agent creation to send welcome email"
+          },
+          "teams": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Team IDs to assign agent to"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether agent is enabled"
+          },
+          "availability_status": {
+            "type": "string",
+            "enum": [
+              "online",
+              "away",
+              "away_manual",
+              "offline",
+              "away_and_reassigning"
+            ],
+            "description": "Agent's availability status"
+          },
+          "new_password": {
+            "type": "string",
+            "description": "Agent's new password, Optional"
+          }
+        }
+      },
+      "AvailabilityRequest": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "busy",
+              "away",
+              "offline"
+            ],
+            "description": "Availability status"
+          }
+        }
+      },
+      "AICompletionRequest": {
+        "type": "object",
+        "required": [
+          "prompt_key",
+          "content"
+        ],
+        "properties": {
+          "prompt_key": {
+            "type": "string",
+            "description": "AI prompt identifier"
+          },
+          "content": {
+            "type": "string",
+            "description": "Content for AI completion"
+          }
+        }
+      },
+      "AIProviderRequest": {
+        "type": "object",
+        "required": [
+          "provider",
+          "api_key"
+        ],
+        "properties": {
+          "provider": {
+            "type": "string",
+            "description": "AI provider name"
+          },
+          "api_key": {
+            "type": "string",
+            "description": "API key for provider"
+          }
+        }
+      },
+      "ToggleRequest": {
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether to enable or disable"
+          }
+        }
+      },
+      "BlockContactRequest": {
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether to block or unblock contact"
+          }
+        }
+      },
+      "ContactNoteRequest": {
+        "type": "object",
+        "required": [
+          "note"
+        ],
+        "properties": {
+          "note": {
+            "type": "string",
+            "description": "Note content"
+          }
+        }
+      },
+      "CreateConversationRequest": {
+        "type": "object",
+        "required": [
+          "subject",
+          "content",
+          "inbox_id",
+          "contact_email",
+          "first_name",
+          "last_name",
+          "initiator"
+        ],
+        "properties": {
+          "subject": {
+            "type": "string",
+            "description": "Conversation subject"
+          },
+          "content": {
+            "type": "string",
+            "description": "Initial message content (Accepts HTML as well)"
+          },
+          "inbox_id": {
+            "type": "integer",
+            "description": "Inbox ID for the conversation"
+          },
+          "team_id": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Team ID to be assigned when conversation is created"
+          },
+          "agent_id": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Agent ID to be assigned when conversation is created"
+          },
+          "contact_email": {
+            "type": "string",
+            "format": "email",
+            "description": "Contact's email address"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "Contact's first name"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "Contact's last name"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Array of attachment IDs"
+          },
+          "initiator": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "contact"
+            ],
+            "description": "Who initiated the conversation. 'contact' means first message is incoming from contact, 'agent' means first message is outgoing from agent"
+          }
+        }
+      },
+      "MessageRequest": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Message content"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Attachment IDs"
+          },
+          "private": {
+            "type": "boolean",
+            "description": "Whether message is private (internal note)"
+          },
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Email recipients"
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "CC recipients"
+          },
+          "bcc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "BCC recipients"
+          },
+          "sender_type": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "contact"
+            ],
+            "description": "Specifies whether the message is sent by an agent or a contact."
+          }
+        }
+      },
+      "TeamAssignRequest": {
+        "type": "object",
+        "required": [
+          "assignee_id"
+        ],
+        "properties": {
+          "assignee_id": {
+            "type": "integer",
+            "description": "Team ID to assign"
+          }
+        }
+      },
+      "UserAssignRequest": {
+        "type": "object",
+        "required": [
+          "assignee_id"
+        ],
+        "properties": {
+          "assignee_id": {
+            "type": "integer",
+            "description": "User ID to assign"
+          }
+        }
+      },
+      "PriorityUpdateRequest": {
+        "type": "object",
+        "required": [
+          "priority"
+        ],
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "description": "Priority level"
+          }
+        }
+      },
+      "StatusUpdateRequest": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status value e.g. Open, Resolved"
+          },
+          "snoozed_until": {
+            "type": "string",
+            "description": "Snooze duration (e.g. 1h, 3h, 100h). Required if status is Snoozed."
+          }
+        }
+      },
+      "SnoozeRequest": {
+        "type": "object",
+        "required": [
+          "snoozed_until"
+        ],
+        "properties": {
+          "snoozed_until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Snooze until timestamp"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "basicAuth": []
+    },
+    {
+      "tokenAuth": []
+    }
+  ]
+}
