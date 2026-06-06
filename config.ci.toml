@@ -7,7 +7,7 @@ env = "dev"
 # Whether to automatically check for application updates on start up, app updates are shown as a banner in the admin panel.
 check_updates = true
 # Encryption key. Generate using `openssl rand -hex 16` must be 32 characters long.
-encryption_key = "ci-test-key-32-chars-here-ok!!"
+encryption_key = "ci-test-key32characters-here!!"
 # Path to a directory with custom static files and templates to override the defaults.
 # The directory structure should mirror the built-in static/ directory.
 # Only the files you provide will be replaced; the rest use built-in defaults.
