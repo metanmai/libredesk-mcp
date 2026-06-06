@@ -15,7 +15,6 @@
 ```bash
 npm install          # install dependencies
 npm run build        # tsc → dist/ + copy openapi.json into dist/
-npm run dev          # live TypeScript via tsx (no build step)
 npm start            # run compiled output (node dist/index.js)
 npm test             # run vitest unit tests
 npm run test:watch   # vitest in watch mode
@@ -147,10 +146,6 @@ node dist/index.js
 ```
 
 The server logs `[libredesk-mcp] ready — 54 tools loaded against http://localhost:9000` on successful startup.
-
-### `tsx` dependency note
-
-In environments with restricted npm registries (corporate proxies, etc.), the `tsx` devDependency may fail to install. It is only needed for `npm run dev`. The build and production run work without it — just remove `tsx` from devDependencies in `package.json` temporarily if blocked.
 
 ## Updating the OpenAPI spec
 

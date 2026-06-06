@@ -21,7 +21,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
 
-      - run: npm ci
+      - run: npm install
       - run: npm run build
       - run: npm test
       - run: npm start &
@@ -69,7 +69,7 @@ jobs:
           node-version: 22
           cache: "npm"
 
-      - run: npm ci
+      - run: npm install
       - run: npm run build
 
       - name: Start Libredesk
