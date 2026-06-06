@@ -1,5 +1,8 @@
 src
 tsconfig.json
+vitest.config.ts
+config.ci.toml
+.github
 node_modules
 *.log
 .env

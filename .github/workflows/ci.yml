@@ -1,0 +1,176 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm start &
+        env:
+          LIBREDESK_URL: http://localhost:9000
+          LIBREDESK_API_KEY: test
+          LIBREDESK_API_SECRET: test
+        timeout-minutes: 1
+        continue-on-error: true
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: libredesk
+          POSTGRES_PASSWORD: libredesk
+          POSTGRES_DB: libredesk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U libredesk -d libredesk"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 6
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 6
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Start Libredesk
+        run: |
+          docker run -d --name libredesk_app \
+            --network host \
+            -e LIBREDESK_SYSTEM_USER_PASSWORD="Admin@1234!" \
+            -v $PWD/config.ci.toml:/libredesk/config.toml \
+            libredesk/libredesk:latest \
+            sh -c "./libredesk --install --idempotent-install --yes --config /libredesk/config.toml && ./libredesk --upgrade --yes --config /libredesk/config.toml && ./libredesk --config /libredesk/config.toml"
+
+      - name: Wait for Libredesk
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:9000/health > /dev/null 2>&1; then
+              echo "Libredesk ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Libredesk failed to start"
+          docker logs libredesk_app
+          exit 1
+
+      - name: Generate API key
+        run: |
+          # Login
+          SESSION=$(curl -sf -c - http://localhost:9000/api/v1/auth/login \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"System","password":"Admin@1234!"}' | grep libredesk_session | awk '{print $NF}')
+          # Generate key
+          CREDS=$(curl -sf http://localhost:9000/api/v1/agents/1/api-key \
+            -X POST \
+            -H "Cookie: libredesk_session=$SESSION" \
+            -H 'X-CSRFTOKEN: test')
+          echo "API_KEY=$(echo $CREDS | jq -r .data.api_key)" >> $GITHUB_ENV
+          echo "API_SECRET=$(echo $CREDS | jq -r .data.api_secret)" >> $GITHUB_ENV
+
+      - name: Test MCP server against live Libredesk
+        run: |
+          node -e "
+          const { spawn } = require('child_process');
+          const { createInterface } = require('readline');
+
+          const proc = spawn('node', ['dist/index.js'], {
+            env: {
+              ...process.env,
+              LIBREDESK_URL: 'http://localhost:9000',
+              LIBREDESK_API_KEY: process.env.API_KEY,
+              LIBREDESK_API_SECRET: process.env.API_SECRET,
+            },
+            stdio: ['pipe', 'pipe', 'pipe'],
+          });
+
+          let id = 1;
+          const pending = new Map();
+          const rl = createInterface({ input: proc.stdout });
+          rl.on('line', (line) => {
+            try {
+              const msg = JSON.parse(line);
+              if (msg.id !== undefined && pending.has(msg.id)) pending.get(msg.id)(msg);
+            } catch {}
+          });
+
+          function send(method, params = {}) {
+            return new Promise((resolve) => {
+              const reqId = id++;
+              const req = JSON.stringify({ jsonrpc: '2.0', id: reqId, method, params });
+              pending.set(reqId, resolve);
+              proc.stdin.write(req + '\n');
+            });
+          }
+
+          (async () => {
+            await send('initialize', { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'ci', version: '1.0.0' } });
+            const resp = await send('tools/list');
+            const tools = resp.result.tools;
+
+            if (tools.length !== 54) {
+              console.error('Expected 54 tools, got', tools.length);
+              process.exit(1);
+            }
+
+            const testTools = ['health_check', 'get_agents', 'get_contacts', 'get_priorities', 'get_statuses', 'get_teams', 'get_ai_prompts'];
+            let failed = 0;
+            for (const name of testTools) {
+              const r = await send('tools/call', { name, arguments: {} });
+              const text = r.result?.content?.[0]?.text || '';
+              const ok = text.includes('HTTP 200');
+              if (!ok) {
+                console.error('FAIL:', name, text.split('\n')[0]);
+                failed++;
+              }
+            }
+
+            if (failed > 0) {
+              console.error(failed, 'tools failed');
+              process.exit(1);
+            }
+
+            console.log(tools.length + ' tools, all checks passed');
+            proc.kill();
+          })();
+          " 2>&1

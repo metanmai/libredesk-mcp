@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { basename, dirname, join } from "node:path";
 
-type JsonSchema = Record<string, unknown>;
+export type JsonSchema = Record<string, unknown>;
 
 interface OpenAPIParameter {
   name: string;
@@ -32,12 +32,12 @@ interface OpenAPIOperation {
   };
 }
 
-interface OpenAPISpec {
+export interface OpenAPISpec {
   paths: Record<string, Record<string, OpenAPIOperation>>;
   components?: { schemas?: Record<string, JsonSchema> };
 }
 
-interface ToolDef {
+export interface ToolDef {
   name: string;
   description: string;
   inputSchema: JsonSchema;
@@ -49,26 +49,24 @@ interface ToolDef {
   bodyContentType: string | null;
   isMultipart: boolean;
   binaryFields: Set<string>;
+  bodyKeyMap: Map<string, string>;
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const LIBREDESK_URL = (process.env.LIBREDESK_URL || "").replace(/\/$/, "");
-const LIBREDESK_API_KEY = process.env.LIBREDESK_API_KEY || "";
-const LIBREDESK_API_SECRET = process.env.LIBREDESK_API_SECRET || "";
-
-if (!LIBREDESK_URL) {
-  console.error(
-    "[libredesk-mcp] LIBREDESK_URL is not set. Example: http://localhost:9000",
-  );
-}
-if (!LIBREDESK_API_KEY || !LIBREDESK_API_SECRET) {
-  console.error(
-    "[libredesk-mcp] LIBREDESK_API_KEY and LIBREDESK_API_SECRET must be set.",
-  );
+export function getLibredeskURL(): string {
+  return (process.env.LIBREDESK_URL || "").replace(/\/$/, "");
 }
 
-function loadSpec(): OpenAPISpec {
+export function getApiKey(): string {
+  return process.env.LIBREDESK_API_KEY || "";
+}
+
+export function getApiSecret(): string {
+  return process.env.LIBREDESK_API_SECRET || "";
+}
+
+export function loadSpec(): OpenAPISpec {
   const candidates = [
     join(__dirname, "openapi.json"),
     join(__dirname, "..", "src", "openapi.json"),
@@ -84,7 +82,7 @@ function loadSpec(): OpenAPISpec {
   throw new Error("Unable to locate bundled openapi.json");
 }
 
-function resolveRef(spec: OpenAPISpec, ref: string): JsonSchema {
+export function resolveRef(spec: OpenAPISpec, ref: string): JsonSchema {
   if (!ref.startsWith("#/")) return {};
   const segments = ref.slice(2).split("/");
   let current: unknown = spec;
@@ -98,7 +96,7 @@ function resolveRef(spec: OpenAPISpec, ref: string): JsonSchema {
   return (current as JsonSchema) ?? {};
 }
 
-function dereference(spec: OpenAPISpec, schema: JsonSchema, seen = new Set<string>()): JsonSchema {
+export function dereference(spec: OpenAPISpec, schema: JsonSchema, seen = new Set<string>()): JsonSchema {
   if (!schema || typeof schema !== "object") return schema;
   if (typeof schema.$ref === "string") {
     if (seen.has(schema.$ref)) return {};
@@ -120,16 +118,17 @@ function dereference(spec: OpenAPISpec, schema: JsonSchema, seen = new Set<strin
   return out;
 }
 
-// MCP tool names must be <= 64 chars, alphanumeric+underscore+hyphen.
-function toolNameFromOperationId(operationId: string): string {
+export function toolNameFromOperationId(operationId: string): string {
   let s = operationId.replace(/^handle/, "");
-  s = s.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+  s = s.replace(/([a-z0-9])([A-Z])/g, "$1_$2");
+  s = s.replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2");
+  s = s.toLowerCase();
   s = s.replace(/[^a-z0-9_]/g, "_");
   if (s.length > 60) s = s.slice(0, 60);
   return s || operationId;
 }
 
-function buildTools(spec: OpenAPISpec): ToolDef[] {
+export function buildTools(spec: OpenAPISpec): ToolDef[] {
   const tools: ToolDef[] = [];
   for (const [path, methods] of Object.entries(spec.paths)) {
     for (const [method, op] of Object.entries(methods)) {
@@ -141,6 +140,7 @@ function buildTools(spec: OpenAPISpec): ToolDef[] {
       const required: string[] = [];
       const pathParams: string[] = [];
       const queryParams: { name: string; required: boolean }[] = [];
+      const bodyKeyMap = new Map<string, string>();
 
       for (const param of op.parameters || []) {
         const schema = param.schema ? dereference(spec, param.schema) : { type: "string" };
@@ -160,7 +160,6 @@ function buildTools(spec: OpenAPISpec): ToolDef[] {
       let isMultipart = false;
       const binaryFields = new Set<string>();
       if (op.requestBody?.content) {
-        // Prefer application/json, otherwise multipart, otherwise whatever comes first.
         const entries = Object.entries(op.requestBody.content);
         const pick =
           entries.find(([ct]) => ct === "application/json") ||
@@ -177,22 +176,26 @@ function buildTools(spec: OpenAPISpec): ToolDef[] {
             for (const [bk, bv] of Object.entries(bodyProps)) {
               const fieldSchema = bv as JsonSchema;
               const isBinary = fieldSchema.format === "binary";
-              if (isBinary) binaryFields.add(bk);
+              const collides = bk in properties;
+              const key = collides ? `body_${bk}` : bk;
+
+              bodyKeyMap.set(key, bk);
+              if (isBinary) binaryFields.add(key);
+
               const annotated: JsonSchema = isBinary
                 ? {
                     type: "string",
                     description: `(body, file) ${fieldSchema.description || ""} — pass an absolute local file path; the server will upload its contents.`,
                   }
                 : { ...fieldSchema, description: `(body) ${fieldSchema.description || ""}` };
-              const key = properties[bk] ? `body_${bk}` : bk;
-              if (key === `body_${bk}`) binaryFields.delete(bk); // re-add under prefixed key
-              if (key === `body_${bk}` && isBinary) binaryFields.add(`body_${bk}`);
+
               properties[key] = annotated;
               if (op.requestBody.required && bodyRequired.includes(bk)) required.push(key);
             }
           } else {
             properties["body"] = { ...resolved, description: "Request body" };
             if (op.requestBody.required) required.push("body");
+            bodyKeyMap.set("body", "body");
           }
         }
       }
@@ -223,22 +226,25 @@ function buildTools(spec: OpenAPISpec): ToolDef[] {
         bodyContentType,
         isMultipart,
         binaryFields,
+        bodyKeyMap,
       });
     }
   }
   return tools;
 }
 
-function authHeader(): string {
-  // Libredesk supports either:
-  //   Authorization: token <api_key>:<api_secret>
-  //   Authorization: Basic base64(<api_key>:<api_secret>)
-  // We use token auth; it's the documented preferred form.
-  return `token ${LIBREDESK_API_KEY}:${LIBREDESK_API_SECRET}`;
+export function authHeader(apiKey: string, apiSecret: string): string {
+  return `token ${apiKey}:${apiSecret}`;
 }
 
-async function callOperation(tool: ToolDef, args: Record<string, unknown>): Promise<string> {
-  let url = `${LIBREDESK_URL}${tool.path}`;
+export async function callOperation(
+  tool: ToolDef,
+  args: Record<string, unknown>,
+  baseUrl: string,
+  apiKey: string,
+  apiSecret: string,
+): Promise<string> {
+  let url = `${baseUrl}${tool.path}`;
   for (const p of tool.pathParams) {
     const v = args[p];
     if (v === undefined || v === null || v === "") {
@@ -261,7 +267,7 @@ async function callOperation(tool: ToolDef, args: Record<string, unknown>): Prom
   if (qsStr) url += (url.includes("?") ? "&" : "?") + qsStr;
 
   const headers: Record<string, string> = {
-    Authorization: authHeader(),
+    Authorization: authHeader(apiKey, apiSecret),
     Accept: "application/json",
   };
 
@@ -273,7 +279,7 @@ async function callOperation(tool: ToolDef, args: Record<string, unknown>): Prom
       const form = new FormData();
       const append = (key: string, value: unknown) => {
         if (value === undefined || value === null) return;
-        const realKey = key.startsWith("body_") ? key.slice(5) : key;
+        const realKey = tool.bodyKeyMap.get(key) ?? key;
         if (tool.binaryFields.has(key)) {
           if (typeof value !== "string") {
             throw new Error(`Binary field '${realKey}' must be a string file path; got ${typeof value}.`);
@@ -296,7 +302,6 @@ async function callOperation(tool: ToolDef, args: Record<string, unknown>): Prom
         append(k, v);
       }
       body = form;
-      // Do NOT set Content-Type — fetch/undici will add it with the proper boundary.
     } else {
       const bodyObj: Record<string, unknown> = {};
       if ("body" in args && typeof args.body === "object" && args.body !== null) {
@@ -304,7 +309,7 @@ async function callOperation(tool: ToolDef, args: Record<string, unknown>): Prom
       }
       for (const [k, v] of Object.entries(args)) {
         if (usedKeys.has(k) || k === "body") continue;
-        const realKey = k.startsWith("body_") ? k.slice(5) : k;
+        const realKey = tool.bodyKeyMap.get(k) ?? k;
         bodyObj[realKey] = v;
       }
       if (Object.keys(bodyObj).length > 0) {
@@ -351,6 +356,21 @@ async function main() {
     })),
   }));
 
+  const libredeskUrl = getLibredeskURL();
+  const apiKey = getApiKey();
+  const apiSecret = getApiSecret();
+
+  if (!libredeskUrl) {
+    console.error(
+      "[libredesk-mcp] LIBREDESK_URL is not set. Example: http://localhost:9000",
+    );
+  }
+  if (!apiKey || !apiSecret) {
+    console.error(
+      "[libredesk-mcp] LIBREDESK_API_KEY and LIBREDESK_API_SECRET must be set.",
+    );
+  }
+
   server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const tool = byName.get(req.params.name);
     if (!tool) {
@@ -360,7 +380,13 @@ async function main() {
       };
     }
     try {
-      const result = await callOperation(tool, (req.params.arguments || {}) as Record<string, unknown>);
+      const result = await callOperation(
+        tool,
+        (req.params.arguments || {}) as Record<string, unknown>,
+        libredeskUrl,
+        apiKey,
+        apiSecret,
+      );
       return { content: [{ type: "text", text: result }] };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -370,10 +396,15 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error(`[libredesk-mcp] ready — ${tools.length} tools loaded against ${LIBREDESK_URL || "<unset>"}`);
+  console.error(`[libredesk-mcp] ready — ${tools.length} tools loaded against ${libredeskUrl || "<unset>"}`);
 }
 
-main().catch((err) => {
-  console.error("[libredesk-mcp] fatal:", err);
-  process.exit(1);
-});
+// Run the server if this file is executed directly (not imported for testing).
+const __filename = fileURLToPath(import.meta.url);
+const isEntryPoint = process.argv[1] === __filename || process.argv[1]?.endsWith("/dist/index.js");
+if (isEntryPoint) {
+  main().catch((err) => {
+    console.error("[libredesk-mcp] fatal:", err);
+    process.exit(1);
+  });
+}

@@ -6,14 +6,14 @@ Exposes the entire Libredesk REST API (54 endpoints) as MCP tools, generated dyn
 
 ## Tools
 
-All Libredesk REST endpoints become tools. Highlights:
+All Libredesk REST endpoints become tools (54 total), organized by API tag:
 
-- **Conversations** — `get_all_conversations`, `get_conversation`, `send_message`, `update_conversation_status`, `update_conversation_priority`, `update_conversationtags`, `update_user_assignee`, `update_team_assignee`, `search_conversations`, ...
-- **Contacts** — `get_contacts`, `get_contact`, `update_contact`, `block_contact`, `search_contacts`, `get_contact_notes`, `create_contact_note`
-- **Agents** — `get_agents`, `get_current_agent`, `create_agent`, `update_agent`, `generate_a_p_i_key`, `revoke_a_p_i_key`
-- **Teams** — `get_teams`, `create_team`, `update_team`, `delete_team`
-- **Status & Priority** — `get_statuses`, `get_priorities`, `create_status`, `update_status`
-- **AI** — `a_i_completion`, `get_a_i_prompts`, `update_a_i_provider`
+- **Conversations** — `create_conversation`, `get_all_conversations`, `get_assigned_conversations`, `get_unassigned_conversations`, `get_conversation`, `get_messages`, `get_message`, `send_message`, `retry_message`, `get_conversation_participants`, `update_conversation_priority`, `update_conversation_status`, `update_conversationtags`, `update_user_assignee`, `remove_user_assignee`, `update_team_assignee`, `remove_team_assignee`, `update_conversation_assignee_last_seen`, `get_view_conversations`, `get_team_unassigned_conversations`
+- **Contacts** — `get_contacts`, `get_contact`, `update_contact`, `block_contact`, `get_contact_notes`, `create_contact_note`, `delete_contact_note`
+- **Agents** — `get_agents`, `get_agent`, `get_current_agent`, `create_agent`, `update_agent`, `update_agent_availability`, `delete_agent`, `generate_api_key`, `revoke_api_key`
+- **Teams** — `get_teams`, `get_team`, `create_team`, `update_team`, `delete_team`
+- **Status & Priority** — `get_statuses`, `get_priorities`, `create_status`, `update_status`, `delete_status`
+- **AI** — `ai_completion`, `get_ai_prompts`, `update_ai_provider`
 - **Search** — `search_conversations`, `search_contacts`, `search_messages`
 - **Media** — `media_upload`
 - **Health** — `health_check`
@@ -88,7 +88,7 @@ Authentication uses Libredesk's token scheme: `Authorization: token <api_key>:<a
 
 On startup the server reads a bundled copy of Libredesk's [OpenAPI spec](https://docs.libredesk.io/api-reference/openapi.json), walks every operation, and registers it as an MCP tool with:
 
-- `tool name` — derived from the operation's `operationId` (e.g. `handleGetConversation` → `get_conversation`).
+- `tool name` — derived from the operation's `operationId` by stripping the `handle` prefix, splitting camelCase into snake_case, and lowercasing. Consecutive capitals are treated as acronyms (e.g. `handleGetAIPrompts` → `get_ai_prompts`, `handleGenerateAPIKey` → `generate_api_key`).
 - `description` — built from the operation `summary`, `description`, HTTP method/path, and tags.
 - `inputSchema` — flattened from path parameters, query parameters, and the request body's JSON schema (with `$ref`s resolved against `components.schemas`).
 
